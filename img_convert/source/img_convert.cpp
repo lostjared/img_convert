@@ -66,7 +66,7 @@ int main(int argc, char **argv) {
                     std::ostringstream stream;
                     stream << filename << "." << ext_to;
                     cv::imwrite(stream.str(), img);
-                    std::cout << "Converted Image: " << file_names[i] << " to: " << stream.str() << "\n";
+                    std::cout << "[" << i << "/" << file_names.size() << "] - Converted Image: " << file_names[i] << " to: " << stream.str() << "\n";
                 }
             }
         }
