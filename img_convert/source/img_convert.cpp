@@ -3,8 +3,17 @@
 #include<string>
 #include<dirent.h>
 #include<sys/stat.h>
+#include<cctype>
 #include<unistd.h>
 #include<opencv2/opencv.hpp>
+
+std::string toLower(const std::string &s) {
+    std::string temp;
+    for(unsigned int i = 0; i < s.length(); ++i) {
+        temp += tolower(s[i]);
+    }
+    return temp;
+}
 
 void add_directory(std::string path, std::string file_type, std::vector<std::string> &files) {
     DIR *dir = opendir(path.c_str());
@@ -35,9 +44,10 @@ void add_directory(std::string path, std::string file_type, std::vector<std::str
             auto pos = f_info.rfind(".");
             if(pos != std::string::npos) {
                 std::string ext = f_info.substr(pos+1, f_info.length()-pos);
+                
                 std::string filename = f_info.substr(0, pos);
-                if(ext == file_type) {
-                    std::cout << "img_convert: added: " << fullpath << "\n";
+                if(toLower(ext) == toLower(file_type)) {
+                    std::cout << "img_convert: Found file, added: " << fullpath << "\n";
                     files.push_back(fullpath);
                     continue;
                 }
@@ -64,6 +74,7 @@ int main(int argc, char **argv) {
                 break;
         }
     }
+    std::cout << "img_convert: path: " << path << " from: " << ext_from << " to: " << ext_to << "\n";
     std::vector<std::string> file_names;
     add_directory(path,ext_from,file_names);
     if(file_names.size()>0) {
@@ -77,6 +88,8 @@ int main(int argc, char **argv) {
             auto pos = file_names[i].rfind(".");
             if(pos != std::string::npos) {
                 std::string ext = file_names[i].substr(pos+1, file_names[i].length()-pos);
+                
+                
                 std::string filename = file_names[i].substr(0, pos);
                 std::ostringstream stream;
                 stream << filename << "." << ext_to;
