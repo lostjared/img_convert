@@ -61,7 +61,10 @@ int main(int argc, char **argv) {
     std::string ext_from = "jpg";
     std::string ext_to = "png";
     int opt = 0;
-    while((opt = getopt(argc, argv, "p:f:t:")) != -1) {
+    
+    cv::Size r_size(0,0);
+    
+    while((opt = getopt(argc, argv, "p:f:t:r:")) != -1) {
         switch(opt) {
             case 'p':
                 path = optarg;
@@ -72,9 +75,19 @@ int main(int argc, char **argv) {
             case 't':
                 ext_to = optarg;
                 break;
+            case 'r':
+                std::string val = optarg;
+                std::string width = val.substr(0, val.find("x"));
+                std::string height = val.substr(val.find("x")+1, val.length());
+                if(width.length()>0 && height.length()>0) {
+                    r_size = cv::Size(atoi(width.c_str()), atoi(height.c_str()));
+                    std::cout << "Resize: " << r_size.width << "x" << r_size.height << "\n";
+                }
+                break;
         }
     }
     std::cout << "img_convert: path: " << path << " from: " << ext_from << " to: " << ext_to << "\n";
+    std::cout << "img_convert:\n-p path\n-f from\n-t to\n -r 800x600\n";
     std::vector<std::string> file_names;
     add_directory(path,ext_from,file_names);
     if(file_names.size()>0) {
@@ -93,7 +106,13 @@ int main(int argc, char **argv) {
                 std::string filename = file_names[i].substr(0, pos);
                 std::ostringstream stream;
                 stream << filename << "." << ext_to;
-                cv::imwrite(stream.str(), img);
+                if(r_size.width>0 && r_size.height>0) {
+                    cv::Mat resized;
+                    cv::resize(img, resized, r_size);
+                    cv::imwrite(stream.str(), resized);
+                }
+                else
+                    cv::imwrite(stream.str(), img);
                 std::cout << "[" << i << "/" << file_names.size() << "] - Converted Image: " << file_names[i] << " to: " << stream.str() << "\n";
             }
         }
